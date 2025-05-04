@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "npx playwright install"
+    "postinstall": "node node_modules/playwright/install.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
