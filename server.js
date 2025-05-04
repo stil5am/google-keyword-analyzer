@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { chromium } = require('playwright'); // puppeteer → playwright
+const puppeteer = require('puppeteer');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('Google Keyword Analyzer Server (Playwright 버전) is running!');
+  res.send('Google Keyword Analyzer (Puppeteer) is running!');
 });
 
 app.post('/analyze', async (req, res) => {
@@ -17,9 +17,12 @@ app.post('/analyze', async (req, res) => {
     const rawKeyword = req.body.keyword;
     const keyword = rawKeyword.replace(/\s/g, '');
 
-    const browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
 
+    const page = await browser.newPage();
     const searchUrl = `https://www.google.com/search?q=site:blog.naver.com+${encodeURIComponent(keyword)}`;
     await page.goto(searchUrl, { waitUntil: 'domcontentloaded' });
 
@@ -44,7 +47,7 @@ app.post('/analyze', async (req, res) => {
     });
   } catch (error) {
     console.error('분석 오류:', error);
-    res.status(500).json({ error: '분석 실패' });
+    res.status(500).json({ error: '키워드 분석 중 오류 발생' });
   }
 });
 
